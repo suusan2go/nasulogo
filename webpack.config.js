@@ -7,13 +7,14 @@ const NODE_ENV = process.env.NODE_ENV
 const DEBUG = NODE_ENV === 'development' || NODE_ENV === undefined
 const devtool = DEBUG ? '#source-map' : 'eval'
 const base_filename = DEBUG ? '[name]' : '[name]-[hash]'
-const css_loader =  ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
+const scss_loader =  ExtractTextPlugin.extract("style-loader", "css-loader!sass-loader")
+const css_loader =  ExtractTextPlugin.extract("style-loader", "css-loader")
 const plugins = [
   new ExtractTextPlugin(`${base_filename}.css`)
 ]
 const babel_loaders = ['babel']
-const entry_scripts = ['./frontend/javascripts/src/index.js']
-const headers = DEBUG ? { "Access-Control-Allow-Origin": "http://localhost:3000", "Access-Control-Allow-Credentials": "true" } : {}
+const entry_scripts = ['./frontend/javascripts/index.js']
+const headers = DEBUG ? { "Access-Control-Allow-Origin": "http://localhost:8080", "Access-Control-Allow-Credentials": "true" } : {}
 const publicPath = DEBUG ? 'http://localhost:3500/assets/' : '/assets/'
 
 if(DEBUG) {
@@ -59,6 +60,10 @@ module.exports =  [
         },
         {
           test: /\.scss$/,
+          loader: scss_loader
+        },
+        {
+          test: /\.css$/,
           loader: css_loader
         },
         {
