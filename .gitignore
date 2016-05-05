@@ -22,4 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
-pkg
+pkg/
+node_modules/
+*.swo
+*.swp
