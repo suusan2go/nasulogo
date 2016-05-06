@@ -2,5 +2,21 @@ runtime: go
 api_version: go1
 
 handlers:
+- url: /(assets/.*\.css)$
+  mime_type: text/css
+  static_files: public/\1
+  upload: public/assets/.*\.css$
+
+- url: /(assets/.*\.js)$
+  mime_type: text/javascript
+  static_files: public/\1
+  upload: public/assets/.*\.js$
+
+# image files
+- url: /(assets/.*\.(bmp|gif|ico|jpeg|jpg|png))$
+  static_files: public/\1
+  upload: public/assets/.*\.(bmp|gif|ico|jpeg|jpg|png)$
+
 - url: /.*
   script: _go_app
+

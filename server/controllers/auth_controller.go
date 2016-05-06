@@ -21,12 +21,13 @@ import (
 // またapp engineではhttp.Transportなどが使用できないため別のメソッドに差し替える必要がある
 // SEE: https://github.com/stretchr/gomniauth/pull/23
 func initGomniauth(ctx *context.Context) {
+	hostname := appengine.DefaultVersionHostname(*ctx)
 	gomniauth.SetSecurityKey(signature.RandomKey(64))
 	gomniauth.WithProviders(
 		google.New(
 			os.Getenv("GOOGLE_CLIENT_ID"),
 			os.Getenv("GOOGLE_CLIENT_SECRET"),
-			"http://localhost:8080/auth/callback/google",
+			"http://"+hostname+"/auth/callback/google",
 		),
 	)
 	t := new(urlfetch.Transport)
