@@ -26,3 +26,4 @@ pkg/
 node_modules/
 *.swo
 *.swp
+.env

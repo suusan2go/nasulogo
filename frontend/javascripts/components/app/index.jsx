@@ -20,7 +20,7 @@ export default class App extends Component {
               </div>
               <div className="collapse navbar-collapse" id="gloabal-header">
                 <p className="navbar-text navbar-right">
-                  <a href="/auth/google_oauth2">ログイン/新規登録</a>
+				  <a href="/auth//login/google">ログイン/新規登録</a>
                 </p>
               </div>
             </div>
