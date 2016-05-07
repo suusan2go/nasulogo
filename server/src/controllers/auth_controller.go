@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/signature"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/urlfetch"
 
@@ -61,24 +62,36 @@ func CallbackAuth(c echo.Context) error {
 	provider, err := gomniauth.Provider(c.Param("provider"))
 	if err != nil {
 		log.Errorf(ctx, "認証プロバイダーの取得に失敗しました", provider, "-", err)
+		return err
 	}
 	creds, err := provider.CompleteAuth(objx.MustFromURLQuery(r.URL.RawQuery))
 	if err != nil {
 		log.Errorf(ctx, "認証を完了できませんんでした", provider, "-", err)
+		return err
 	}
 	pu, err := provider.GetUser(creds)
 	if err != nil {
 		log.Errorf(ctx, "ユーザーの取得に失敗しました", provider, "-", err)
+		return err
 	}
-	user := &models.User{
-		Name:      pu.Name(),
-		Email:     pu.Email(),
-		Uid:  pu.IDForProvider(c.Param("provider")),
-		AvatarUrl: pu.AvatarURL(),
+
+	user := &models.User{Id: pu.IDForProvider(c.Param("provider"))}
+	if err := models.GetUser(r, user); err == datastore.ErrNoSuchEntity {
+		user = &models.User{
+			Id:        pu.IDForProvider(c.Param("provider")),
+			Name:      pu.Name(),
+			Email:     pu.Email(),
+			AvatarUrl: pu.AvatarURL(),
+		}
+		if err := models.CreateUser(r, user); err != nil {
+			log.Errorf(ctx, "ユーザーの作成に失敗しました", provider, "-", err)
+			return err
+		}
+	} else if err != nil {
+		log.Errorf(ctx, "ユーザーの取得に失敗しました", provider, "-", err)
+		return err
 	}
-	if _, err := models.CreateUser(r, user); err != nil {
-		log.Errorf(ctx, "ユーザーの保存に失敗しました", provider, "-", err)
-	}
+	log.Debugf(ctx, user.Id, user.Name)
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
