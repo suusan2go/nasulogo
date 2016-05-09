@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/stretchr/gomniauth"
@@ -19,6 +20,8 @@ import (
 
 	"models"
 )
+
+var store = sessions.NewCookieStore([]byte(`nasulogo`))
 
 // 本当はinitで処理したいが、GAEではinitだと環境変数を読み出せない
 // またapp engineではhttp.Transportなどが使用できないため別のメソッドに差し替える必要がある
@@ -57,6 +60,7 @@ func GetAuth(c echo.Context) error {
 
 func CallbackAuth(c echo.Context) error {
 	r := c.Request().(*standard.Request).Request
+	w := c.Response().(*standard.Response).ResponseWriter
 	ctx := appengine.NewContext(r)
 
 	initGomniauth(&ctx)
@@ -77,6 +81,7 @@ func CallbackAuth(c echo.Context) error {
 		return err
 	}
 
+	// TODO: modelsパッケージに切り出したい
 	user := &models.User{Id: pu.IDForProvider(c.Param("provider"))}
 	if err := models.GetUser(r, user); err == datastore.ErrNoSuchEntity {
 		user = &models.User{
@@ -93,7 +98,14 @@ func CallbackAuth(c echo.Context) error {
 		log.Errorf(ctx, "ユーザーの取得に失敗しました", provider, "-", err)
 		return err
 	}
-	log.Debugf(ctx, user.Id, user.Name)
+
+	session, err := store.Get(r, "nasulogo")
+	if err != nil {
+		log.Errorf(ctx, "セッションの作成に失敗しました", err)
+		return err
+	}
+	session.Values["current_user_id"] = user.Id
+	session.Save(r, w)
 
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
