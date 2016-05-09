@@ -45,10 +45,12 @@ func GetAuth(c echo.Context) error {
 	provider, err := gomniauth.Provider(c.Param("provider"))
 	if err != nil {
 		log.Errorf(ctx, "認証プロバイダーの取得に失敗しました", provider, "-", err)
+		return err
 	}
 	loginUrl, err := provider.GetBeginAuthURL(nil, nil)
 	if err != nil {
 		log.Errorf(ctx, "GetBiginAuthURLの呼び出し中にエラーが発生しました", provider, "-", err)
+		return err
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, loginUrl)
 }
