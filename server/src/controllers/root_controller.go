@@ -20,7 +20,7 @@ var assetsData = assetsPath()
 func assetsPath() *assets {
 	a := &assets{}
 
-	if appengine.IsDevAppServer() && false {
+	if appengine.IsDevAppServer() {
 		a.Javascript = "http://localhost:3500/assets/main.js"
 		a.Stylesheet = "http://localhost:3500/assets/main.css"
 	} else {

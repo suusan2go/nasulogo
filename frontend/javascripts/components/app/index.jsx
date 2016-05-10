@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Helmet from 'react-helmet';
 
 export default class App extends Component {
-
   render() {
     return(
       <div>
@@ -20,7 +19,7 @@ export default class App extends Component {
               </div>
               <div className="collapse navbar-collapse" id="gloabal-header">
                 <p className="navbar-text navbar-right">
-				  <a href="/auth//login/google">ログイン/新規登録</a>
+                  <a href="/auth//login/google">ログイン/新規登録</a>
                 </p>
               </div>
             </div>
